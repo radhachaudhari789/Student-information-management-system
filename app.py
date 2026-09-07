@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import sqlite3
+import os
 
 app = Flask(__name__)
 
@@ -19,7 +20,7 @@ def init_db():
             parent_contact TEXT,
             percentage TEXT,
             date_of_birth TEXT,
-address TEXT
+            address TEXT
         )
     """)
 
@@ -86,10 +87,14 @@ def login():
     username = request.form["username"]
     password = request.form["password"]
 
-    if username == "admin" and password == "REMOVED":
+    admin_password = os.environ.get("ADMIN_PASSWORD")
+
+    if username == "admin" and password == admin_password:
         return dashboard()
 
     return "Invalid username or password!"
+
+
 @app.route("/search-student", methods=["GET", "POST"])
 def search_student():
     if request.method == "POST":
@@ -134,6 +139,8 @@ def search_student():
         )
 
     return render_template("search_student.html")
+
+
 @app.route("/edit-student/<int:student_id>")
 def edit_student(student_id):
     conn = sqlite3.connect("students.db")
@@ -152,6 +159,7 @@ def edit_student(student_id):
         "edit_student.html",
         student=student
     )
+
 
 @app.route("/update-student/<int:student_id>", methods=["POST"])
 def update_student(student_id):
@@ -212,6 +220,7 @@ def update_student(student_id):
         ),
         message="Student updated successfully!"
     )
+
 
 @app.route("/delete-student/<int:student_id>")
 def delete_student(student_id):
@@ -279,6 +288,8 @@ def class_wise_students(class_name):
         students=students,
         class_name=class_name
     )
+
+
 @app.route("/top-students")
 def top_students():
     conn = sqlite3.connect("students.db")
@@ -306,7 +317,6 @@ def top_students():
         if len(top_students_by_class[class_name]) < 3:
             top_students_by_class[class_name].append(student)
 
-    # Arrange classes numerically: 1, 2, 3 ... 10
     top_students_by_class = dict(
         sorted(
             top_students_by_class.items(),
@@ -318,6 +328,7 @@ def top_students():
         "top_students.html",
         top_students_by_class=top_students_by_class
     )
+
 
 @app.route("/save-student", methods=["POST"])
 def save_student():
@@ -363,19 +374,19 @@ def save_student():
     cursor.execute("""
     INSERT INTO students
     (roll_number, name, class_name, father_name,
-     mother_name, parent_contact, percentage, date_of_birth,address)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
-""", (
-    roll_number,
-    name,
-    class_name,
-    father_name,
-    mother_name,
-    parent_contact,
-    percentage,
-    date_of_birth,
-    address
-))
+     mother_name, parent_contact, percentage, date_of_birth, address)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        roll_number,
+        name,
+        class_name,
+        father_name,
+        mother_name,
+        parent_contact,
+        percentage,
+        date_of_birth,
+        address
+    ))
 
     conn.commit()
     conn.close()
