@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Student - Student Information Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="dashboard-page">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-icon">🏫</div>
+            <h2>Z.P. High School</h2>
+            <p>Sasht Pimpalgaon</p>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a href="/dashboard">
+                <span>⌂</span> Dashboard
+            </a>
+
+            <a href="/add-student">
+                <span>＋</span> Add Student
+            </a>
+
+            <a href="/view-students">
+                <span>☷</span> View Students
+            </a>
+
+            <a href="/search-student" class="active">
+                <span>⌕</span> Search Student
+            </a>
+
+            <a href="/logout" class="logout-link">
+                <span>↪</span> Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="dashboard-main">
+
+        <header class="dashboard-header">
+
+            <div>
+                <p class="dashboard-label">STUDENT MANAGEMENT</p>
+                <h1>Search Student</h1>
+                <p>Find a student using their roll number.</p>
+            </div>
+
+        </header>
+
+
+        <section class="search-card">
+            {% if error %}
+<div class="error-message">
+    ⚠ {{ error }}
+</div>
+{% endif %}
+
+            <div class="search-card-icon">⌕</div>
+
+            <h2>Find Student Record</h2>
+
+           <p>
+    Search using the student's name or class and roll number.
+</p>
+
+<form method="POST" action="/search-student">
+
+    <label>Student Name</label>
+
+    <div class="search-input-group">
+
+        <input type="text"
+               name="name"
+               placeholder="Enter student name">
+
+    </div>
+
+    <label>Class</label>
+
+    <div class="search-input-group">
+
+        <input type="text"
+               name="class_name"
+               placeholder="Enter class">
+
+    </div>
+
+    <label>Roll Number</label>
+
+    <div class="search-input-group">
+
+        <input type="text"
+               name="roll_number"
+               placeholder="Enter roll number">
+
+        <button type="submit">Search</button>
+
+    </div>
+
+</form>
+        </section>
+
+
+        <div class="page-navigation">
+            <a href="/dashboard">← Back to Dashboard</a>
+        </div>
+
+
+        <footer class="dashboard-footer">
+            © 2026 Z.P. High School, Sasht Pimpalgaon
+        </footer>
+
+    </main>
+
+</body>
+</html>

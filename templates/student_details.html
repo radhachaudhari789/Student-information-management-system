@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="dashboard-page">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-icon">🏫</div>
+            <h2>Z.P. High School</h2>
+            <p>Sasht Pimpalgaon</p>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a href="/dashboard">
+                <span>⌂</span> Dashboard
+            </a>
+
+            <a href="/add-student">
+                <span>＋</span> Add Student
+            </a>
+
+            <a href="/view-students">
+                <span>☷</span> View Students
+            </a>
+
+            <a href="/search-student" class="active">
+                <span>⌕</span> Search Student
+            </a>
+
+            <a href="/logout" class="logout-link">
+                <span>↪</span> Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="dashboard-main">
+
+        <header class="dashboard-header">
+
+            <div>
+                <p class="dashboard-label">STUDENT INFORMATION</p>
+                <h1>Student Details</h1>
+                <p>Complete information for the selected student.</p>
+            </div>
+
+        </header>
+
+
+        <section class="details-card">
+            <div class="print-header">
+    <h1>Z.P. High School</h1>
+    <p>Sasht Pimpalgaon</p>
+    <h2>STUDENT INFORMATION REPORT</h2>
+    <p class="report-date">Report Date: <span id="reportDate"></span></p>
+</div>
+
+            <div class="details-header">
+                <div class="details-icon">👤</div>
+
+                <div>
+                    <h2>{{ student[2] }}</h2>
+                    <p>Roll Number: {{ student[1] }}</p>
+                </div>
+            </div>
+
+
+            <div class="details-table-container">
+
+                <table class="details-table">
+
+                    <tr>
+                        <th>Sr. No.</th>
+                        <td>{{ student[0] }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Roll Number</th>
+                        <td>{{ student[1] }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Student Name</th>
+                        <td>{{ student[2] }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Class</th>
+                        <td>{{ student[3] }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Father's Name</th>
+                        <td>{{ student[4] }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Mother's Name</th>
+                        <td>{{ student[5] }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Parent Contact</th>
+                        <td>{{ student[6] }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Percentage</th>
+                        <td>{{ student[7] }}</td>
+                    </tr>
+                    <tr>
+    <th>Date of Birth</th>
+    <td>{{ student[8] }}</td>
+</tr>
+<tr>
+    <th>Address</th>
+    <td>{{ student[9] }}</td>
+</tr>
+
+                </table>
+
+            </div>
+
+
+            <div class="details-actions">
+
+                <a href="/search-student" class="secondary-button">
+                    ← Search Again
+                </a>
+                <button type="button" onclick="window.print()" class="primary-button">
+    🖨 Print Report
+</button>
+
+                <a href="/dashboard" class="primary-button">
+                    Dashboard
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <footer class="dashboard-footer">
+            © 2026 Z.P. High School, Sasht Pimpalgaon
+        </footer>
+
+    </main>
+
+</body>
+</html>

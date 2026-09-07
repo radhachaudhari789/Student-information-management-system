@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Class-wise Students - Student Information Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="dashboard-page">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-icon">🏫</div>
+            <h2>Z.P. High School</h2>
+            <p>Sasht Pimpalgaon</p>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a href="/dashboard">
+                <span>⌂</span> Dashboard
+            </a>
+
+            <a href="/add-student">
+                <span>＋</span> Add Student
+            </a>
+
+            <a href="/view-students">
+                <span>☷</span> View Students
+            </a>
+
+            <a href="/class-wise" class="active">
+                <span>▣</span> Class-wise Students
+            </a>
+
+            <a href="/search-student">
+                <span>⌕</span> Search Student
+            </a>
+
+            <a href="/logout" class="logout-link">
+                <span>↪</span> Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="dashboard-main">
+
+        <header class="dashboard-header">
+
+            <div>
+                <p class="dashboard-label">STUDENT MANAGEMENT</p>
+                <h1>Class-wise Students</h1>
+                <p>View students according to their class.</p>
+            </div>
+
+        </header>
+
+
+        <section class="class-wise-card">
+
+            <div class="class-wise-header">
+
+                <div class="class-wise-icon">
+                    ▣
+                </div>
+
+                <div>
+                    <h2>Select Class</h2>
+                    <p>Choose a class to view its students.</p>
+                </div>
+
+            </div>
+
+
+            <div class="class-list">
+
+                {% for class_name in classes %}
+
+                <a href="/class-wise/{{ class_name }}" class="class-option">
+                    <span>Class {{ class_name }}</span>
+                    <span>→</span>
+                </a>
+
+                {% else %}
+
+                <p class="no-classes">
+                    No classes found.
+                </p>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <div class="page-navigation">
+            <a href="/dashboard">← Back to Dashboard</a>
+        </div>
+
+
+        <footer class="dashboard-footer">
+            © 2026 Z.P. High School, Sasht Pimpalgaon
+        </footer>
+
+    </main>
+
+</body>
+</html>
