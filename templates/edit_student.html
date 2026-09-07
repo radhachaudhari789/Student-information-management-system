@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Student - Student Information Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="dashboard-page">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-icon">🏫</div>
+            <h2>Z.P. High School</h2>
+            <p>Sasht Pimpalgaon</p>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a href="/dashboard">
+                <span>⌂</span> Dashboard
+            </a>
+
+            <a href="/add-student">
+                <span>＋</span> Add Student
+            </a>
+
+            <a href="/view-students" class="active">
+                <span>☷</span> View Students
+            </a>
+
+            <a href="/search-student">
+                <span>⌕</span> Search Student
+            </a>
+
+            <a href="/logout" class="logout-link">
+                <span>↪</span> Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <main class="dashboard-main">
+
+        <header class="dashboard-header">
+
+            <div>
+                <p class="dashboard-label">STUDENT MANAGEMENT</p>
+                <h1>Edit Student</h1>
+                <p>Update the student's information below.</p>
+            </div>
+
+        </header>
+
+        <section class="form-card">
+            {% if message %}
+<div class="success-message">
+    ✓ {{ message }}
+</div>
+{% endif %}
+
+            <div class="form-card-header">
+
+                <div class="form-title-icon">✎</div>
+
+                <div>
+                    <h2>Edit Student Information</h2>
+                    <p>Update the required student details.</p>
+                </div>
+
+            </div>
+
+            <form method="POST" action="/update-student/{{ student[0] }}">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Roll Number</label>
+                        <input type="text"
+                               name="roll_number"
+                               value="{{ student[1] }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Student Name</label>
+                        <input type="text"
+                               name="name"
+                               value="{{ student[2] }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Class</label>
+                        <input type="text"
+                               name="class_name"
+                               value="{{ student[3] }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Father's Name</label>
+                        <input type="text"
+                               name="father_name"
+                               value="{{ student[4] }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mother's Name</label>
+                        <input type="text"
+                               name="mother_name"
+                               value="{{ student[5] }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Parent Contact</label>
+                        <input type="text"
+                               name="parent_contact"
+                               value="{{ student[6] }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Percentage</label>
+                        <input type="text"
+                               name="percentage"
+                               value="{{ student[7] }}">
+                    </div>
+                    <div class="form-group">
+    <label>Date of Birth</label>
+    <input type="date"
+           name="date_of_birth"
+           value="{{ student[8] }}">
+</div>
+<div class="form-group">
+    <label>Address</label>
+    <textarea name="address"
+              placeholder="Enter student's address"
+              rows="3">{{ student[9] }}</textarea>
+</div>
+
+                </div>
+
+                <div class="form-actions">
+
+                    <a href="/view-students" class="cancel-button">
+                        Cancel
+                    </a>
+
+                    <button type="submit">
+                        Update Student
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <footer class="dashboard-footer">
+            © 2026 Z.P. High School, Sasht Pimpalgaon
+        </footer>
+
+    </main>
+
+</body>
+</html>

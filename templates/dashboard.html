@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard - Student Information Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="dashboard-page">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-icon">🏫</div>
+            <h2>Z.P. High School</h2>
+            <p>Sasht Pimpalgaon</p>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a href="/dashboard" class="active">
+                <span>⌂</span> Dashboard
+            </a>
+
+            <a href="/add-student">
+                <span>＋</span> Add Student
+            </a>
+
+            <a href="/view-students">
+                <span>☷</span> View Students
+            </a>
+            <a href="/class-wise">
+    <span>▣</span> Class-wise Students
+</a>
+
+            <a href="/search-student">
+                <span>⌕</span> Search Student
+            </a>
+
+            <a href="/logout" class="logout-link">
+                <span>↪</span> Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="dashboard-main">
+
+        <header class="dashboard-header">
+
+            <div>
+                <p class="dashboard-label">ADMIN PANEL</p>
+                <h1>Welcome, Admin!</h1>
+                <p>Manage student records easily from your dashboard.</p>
+            </div>
+
+            <div class="admin-badge">
+                <span>👤</span>
+
+                <div>
+                    <strong>Administrator</strong>
+                    <small>School Management</small>
+                </div>
+            </div>
+
+        </header>
+
+
+        <!-- STUDENT STATISTICS -->
+
+        <section class="statistics-section">
+
+            <h2>Student Statistics</h2>
+
+            <p class="section-text">
+                Overview of student records in the system.
+            </p>
+
+
+            <div class="statistics-cards">
+
+                <div class="statistics-card">
+
+                    <div class="statistics-icon students-stat-icon">
+                        👨‍🎓
+                    </div>
+
+                    <div>
+                        <p>Total Students</p>
+                        <h3>{{ total_students }}</h3>
+                    </div>
+
+                </div>
+
+
+                <div class="statistics-card">
+
+                    <div class="statistics-icon classes-stat-icon">
+                        🏫
+                    </div>
+
+                    <div>
+                        <p>Total Classes</p>
+                        <h3>{{ total_classes }}</h3>
+                    </div>
+
+                </div>
+
+
+                <div class="statistics-card">
+
+                    <div class="statistics-icon percentage-stat-icon">
+                        📈
+                    </div>
+
+                    <div>
+                        <p>Average Percentage</p>
+                        <h3>{{ average_percentage }}%</h3>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- STUDENT MANAGEMENT -->
+
+        <section class="quick-actions">
+
+            <h2>Student Management</h2>
+
+            <p class="section-text">
+                Choose an option to manage student information.
+            </p>
+
+
+            <div class="dashboard-cards">
+
+                <a href="/add-student" class="dashboard-card">
+
+                    <div class="card-icon add-icon">＋</div>
+
+                    <div>
+                        <h3>Add Student</h3>
+                        <p>Add a new student record</p>
+                    </div>
+
+                    <span class="card-arrow">→</span>
+
+                </a>
+
+
+                <a href="/view-students" class="dashboard-card">
+
+                    <div class="card-icon view-icon">☷</div>
+
+                    <div>
+                        <h3>View Students</h3>
+                        <p>View all student records</p>
+                    </div>
+
+                    <span class="card-arrow">→</span>
+
+                </a>
+
+
+                <a href="/search-student" class="dashboard-card">
+
+                    <div class="card-icon search-icon">⌕</div>
+
+                    <div>
+                        <h3>Search Student</h3>
+                        <p>Find a student by roll number</p>
+                    </div>
+
+                    <span class="card-arrow">→</span>
+
+                </a>
+                <a href="/class-wise" class="dashboard-card">
+
+    <div class="card-icon view-icon">▣</div>
+
+    <div>
+        <h3>Class-wise Students</h3>
+        <p>View students by class</p>
+    </div>
+
+    <span class="card-arrow">→</span>
+
+</a>
+<a href="/top-students" class="dashboard-card">
+
+    <div class="card-icon view-icon">🏆</div>
+
+    <div>
+        <h3>Class Top 3</h3>
+        <p>View top 3 students of each class</p>
+    </div>
+
+    <span class="card-arrow">→</span>
+
+</a>
+
+            </div>
+
+        </section>
+
+
+        <!-- SYSTEM STATUS -->
+
+        <section class="dashboard-info">
+
+            <div class="info-card">
+
+                <div class="info-icon">✓</div>
+
+                <div>
+                    <h3>System Status</h3>
+                    <p>
+                        Student information management system is ready to use.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer class="dashboard-footer">
+            © 2026 Z.P. High School, Sasht Pimpalgaon
+        </footer>
+
+    </main>
+
+</body>
+</html>

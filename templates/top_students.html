@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Class Top 3 Students</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .top-students-card {
+            background: #ffffff;
+            border: 2px solid #d9e2ec;
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .top-students-card h2 {
+            margin: 0 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .top-students-card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .top-students-card th,
+        .top-students-card td {
+            border: 1px solid #cccccc;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .top-students-card th {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <main class="dashboard-main">
+
+        <div class="page-header">
+            <h1>🏆 Class-wise Top 3 Students</h1>
+            <p>Top three students based on percentage</p>
+        </div>
+
+
+        {% if top_students_by_class %}
+
+            {% for class_name, students in top_students_by_class.items() %}
+
+                <div class="top-students-card">
+
+                    <h2>Class {{ class_name }}</h2>
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Student Name</th>
+                                <th>Roll Number</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for student in students %}
+
+                                <tr>
+
+                                    <td>
+                                        {% if loop.index == 1 %}
+                                            🥇 1st
+                                        {% elif loop.index == 2 %}
+                                            🥈 2nd
+                                        {% else %}
+                                            🥉 3rd
+                                        {% endif %}
+                                    </td>
+
+                                    <td>{{ student[2] }}</td>
+
+                                    <td>{{ student[1] }}</td>
+
+                                    <td>{{ student[7] }}%</td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>No student records with percentage found.</p>
+
+        {% endif %}
+
+
+        <div class="details-actions">
+
+            <a href="/dashboard" class="primary-button">
+                Dashboard
+            </a>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>
