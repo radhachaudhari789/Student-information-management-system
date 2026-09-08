@@ -1,3 +1,5 @@
 students.db
 __pycache__/
 *.pycsecurity-backup.bundle
+*.pyc
+
