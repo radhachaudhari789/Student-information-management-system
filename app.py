@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request
 import sqlite3
 import os
+from supabase import create_client, Client
+supabase: Client = create_client(os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_SECRET_KEY"))
 
 app = Flask(__name__)
 
@@ -32,33 +34,28 @@ def init_db():
 def home():
     return render_template("login.html")
 
-
 @app.route("/dashboard")
 def dashboard():
-    conn = sqlite3.connect("students.db")
-    cursor = conn.cursor()
+    students = supabase.table("students").select("class_name, percentage").execute().data
 
-    cursor.execute("SELECT COUNT(*) FROM students")
-    total_students = cursor.fetchone()[0]
+    total_students = len(students)
 
-    cursor.execute("""
-        SELECT COUNT(DISTINCT class_name)
-        FROM students
-        WHERE class_name IS NOT NULL AND class_name != ''
-    """)
-    total_classes = cursor.fetchone()[0]
-
-    cursor.execute("SELECT percentage FROM students")
-    percentages = cursor.fetchall()
-
+    classes = set()
     valid_percentages = []
 
-    for row in percentages:
+    for student in students:
+        class_name = student.get("class_name")
+        percentage = student.get("percentage")
+
+        if class_name:
+            classes.add(class_name)
+
         try:
-            value = float(row[0])
-            valid_percentages.append(value)
+            valid_percentages.append(float(percentage))
         except (ValueError, TypeError):
             pass
+
+    total_classes = len(classes)
 
     if valid_percentages:
         average_percentage = round(
@@ -67,15 +64,12 @@ def dashboard():
     else:
         average_percentage = 0
 
-    conn.close()
-
     return render_template(
         "dashboard.html",
         total_students=total_students,
         total_classes=total_classes,
         average_percentage=average_percentage
     )
-
 
 @app.route("/logout")
 def logout():
@@ -94,7 +88,6 @@ def login():
 
     return "Invalid username or password!"
 
-
 @app.route("/search-student", methods=["GET", "POST"])
 def search_student():
     if request.method == "POST":
@@ -102,32 +95,40 @@ def search_student():
         class_name = request.form.get("class_name", "").strip()
         roll_number = request.form.get("roll_number", "").strip()
 
-        conn = sqlite3.connect("students.db")
-        cursor = conn.cursor()
-
         if name:
-            cursor.execute(
-                "SELECT * FROM students WHERE name LIKE ?",
-                ("%" + name + "%",)
-            )
+            result = supabase.table("students").select("*").ilike(
+                "name", f"%{name}%"
+            ).limit(1).execute()
 
         elif class_name and roll_number:
-            cursor.execute(
-                "SELECT * FROM students WHERE class_name = ? AND roll_number = ?",
-                (class_name, roll_number)
-            )
+            result = supabase.table("students").select("*").eq(
+                "class_name", class_name
+            ).eq(
+                "roll_number", roll_number
+            ).limit(1).execute()
 
         else:
-            conn.close()
             return render_template(
                 "search_student.html",
                 error="Please enter a student name or both class and roll number."
             )
 
-        student = cursor.fetchone()
-        conn.close()
+        if result.data:
+            student_data = result.data[0]
 
-        if student:
+            student = (
+                student_data.get("id"),
+                student_data.get("roll_number"),
+                student_data.get("name"),
+                student_data.get("class_name"),
+                student_data.get("father_name"),
+                student_data.get("mother_name"),
+                student_data.get("parent_contact"),
+                student_data.get("percentage"),
+                student_data.get("date_of_birth"),
+                student_data.get("address")
+            )
+
             return render_template(
                 "student_details.html",
                 student=student
@@ -139,27 +140,31 @@ def search_student():
         )
 
     return render_template("search_student.html")
-
-
 @app.route("/edit-student/<int:student_id>")
 def edit_student(student_id):
-    conn = sqlite3.connect("students.db")
-    cursor = conn.cursor()
+    result = supabase.table("students").select("*").eq(
+        "id", student_id
+    ).single().execute()
 
-    cursor.execute(
-        "SELECT * FROM students WHERE id = ?",
-        (student_id,)
+    student_data = result.data
+
+    student = (
+        student_data.get("id"),
+        student_data.get("roll_number"),
+        student_data.get("name"),
+        student_data.get("class_name"),
+        student_data.get("father_name"),
+        student_data.get("mother_name"),
+        student_data.get("parent_contact"),
+        student_data.get("percentage"),
+        student_data.get("date_of_birth"),
+        student_data.get("address")
     )
-
-    student = cursor.fetchone()
-
-    conn.close()
 
     return render_template(
         "edit_student.html",
         student=student
     )
-
 
 @app.route("/update-student/<int:student_id>", methods=["POST"])
 def update_student(student_id):
@@ -173,36 +178,17 @@ def update_student(student_id):
     date_of_birth = request.form["date_of_birth"]
     address = request.form["address"]
 
-    conn = sqlite3.connect("students.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        UPDATE students
-        SET roll_number = ?,
-            name = ?,
-            class_name = ?,
-            father_name = ?,
-            mother_name = ?,
-            parent_contact = ?,
-            percentage = ?,
-            date_of_birth = ?,
-            address = ?
-        WHERE id = ?
-    """, (
-        roll_number,
-        name,
-        class_name,
-        father_name,
-        mother_name,
-        parent_contact,
-        percentage,
-        date_of_birth,
-        address,
-        student_id
-    ))
-
-    conn.commit()
-    conn.close()
+    supabase.table("students").update({
+        "roll_number": roll_number,
+        "name": name,
+        "class_name": class_name,
+        "father_name": father_name,
+        "mother_name": mother_name,
+        "parent_contact": parent_contact,
+        "percentage": percentage,
+        "date_of_birth": date_of_birth,
+        "address": address
+    }).eq("id", student_id).execute()
 
     return render_template(
         "edit_student.html",
@@ -220,33 +206,33 @@ def update_student(student_id):
         ),
         message="Student updated successfully!"
     )
-
-
 @app.route("/delete-student/<int:student_id>")
 def delete_student(student_id):
-    conn = sqlite3.connect("students.db")
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "DELETE FROM students WHERE id = ?",
-        (student_id,)
-    )
-
-    conn.commit()
-    conn.close()
+    supabase.table("students").delete().eq(
+        "id", student_id
+    ).execute()
 
     return "Student deleted successfully!"
 
-
 @app.route("/view-students")
 def view_students():
-    conn = sqlite3.connect("students.db")
-    cursor = conn.cursor()
+    data = supabase.table("students").select("*").execute().data
 
-    cursor.execute("SELECT * FROM students")
-    students = cursor.fetchall()
+    students = []
 
-    conn.close()
+    for student in data:
+        students.append((
+            student.get("id"),
+            student.get("roll_number"),
+            student.get("name"),
+            student.get("class_name"),
+            student.get("father_name"),
+            student.get("mother_name"),
+            student.get("parent_contact"),
+            student.get("percentage"),
+            student.get("date_of_birth"),
+            student.get("address")
+        ))
 
     return render_template(
         "view_students.html",
@@ -268,43 +254,67 @@ def class_wise():
         classes=classes
     )
 
-
 @app.route("/class-wise/<class_name>")
 def class_wise_students(class_name):
-    conn = sqlite3.connect("students.db")
-    cursor = conn.cursor()
+    data = supabase.table("students").select("*").eq(
+        "class_name", class_name
+    ).execute().data
 
-    cursor.execute(
-        "SELECT * FROM students WHERE class_name = ?",
-        (class_name,)
-    )
+    students = []
 
-    students = cursor.fetchall()
-
-    conn.close()
+    for student in data:
+        students.append((
+            student.get("id"),
+            student.get("roll_number"),
+            student.get("name"),
+            student.get("class_name"),
+            student.get("father_name"),
+            student.get("mother_name"),
+            student.get("parent_contact"),
+            student.get("percentage"),
+            student.get("date_of_birth"),
+            student.get("address")
+        ))
 
     return render_template(
         "class_students.html",
         students=students,
         class_name=class_name
     )
-
-
 @app.route("/top-students")
 def top_students():
-    conn = sqlite3.connect("students.db")
-    cursor = conn.cursor()
+    data = supabase.table("students").select("*").execute().data
 
-    cursor.execute("""
-        SELECT * FROM students
-        WHERE percentage IS NOT NULL
-        AND percentage != ''
-        ORDER BY CAST(class_name AS INTEGER),
-                 CAST(percentage AS REAL) DESC
-    """)
+    students = []
 
-    students = cursor.fetchall()
-    conn.close()
+    for student in data:
+        percentage = student.get("percentage")
+
+        if percentage is not None and str(percentage).strip() != "":
+            try:
+                percentage_value = float(percentage)
+            except ValueError:
+                continue
+
+            students.append((
+                student.get("id"),
+                student.get("roll_number"),
+                student.get("name"),
+                student.get("class_name"),
+                student.get("father_name"),
+                student.get("mother_name"),
+                student.get("parent_contact"),
+                student.get("percentage"),
+                student.get("date_of_birth"),
+                student.get("address")
+            ))
+
+    students.sort(
+        key=lambda student: (
+            int(student[3]) if str(student[3]).isdigit() else 999,
+            -float(student[7])
+        )
+    )
 
     top_students_by_class = {}
 
@@ -317,18 +327,10 @@ def top_students():
         if len(top_students_by_class[class_name]) < 3:
             top_students_by_class[class_name].append(student)
 
-    top_students_by_class = dict(
-        sorted(
-            top_students_by_class.items(),
-            key=lambda item: int(item[0])
-        )
-    )
-
     return render_template(
         "top_students.html",
         top_students_by_class=top_students_by_class
     )
-
 
 @app.route("/save-student", methods=["POST"])
 def save_student():
@@ -368,34 +370,22 @@ def save_student():
                 error="Please enter a valid percentage."
             )
 
-    conn = sqlite3.connect("students.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    INSERT INTO students
-    (roll_number, name, class_name, father_name,
-     mother_name, parent_contact, percentage, date_of_birth, address)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        roll_number,
-        name,
-        class_name,
-        father_name,
-        mother_name,
-        parent_contact,
-        percentage,
-        date_of_birth,
-        address
-    ))
-
-    conn.commit()
-    conn.close()
+    supabase.table("students").insert({
+        "roll_number": roll_number,
+        "name": name,
+        "class_name": class_name,
+        "father_name": father_name,
+        "mother_name": mother_name,
+        "parent_contact": parent_contact,
+        "percentage": percentage,
+        "date_of_birth": date_of_birth,
+        "address": address
+    }).execute()
 
     return render_template(
         "add_student.html",
         message="Student added successfully!"
     )
-
 
 init_db()
 
