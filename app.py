@@ -2,7 +2,11 @@ from flask import Flask, render_template, request
 import sqlite3
 import os
 from supabase import create_client, Client
-supabase: Client = create_client(os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_SECRET_KEY"))
+
+supabase: Client = create_client(
+    os.environ.get("SUPABASE_URL"),
+    os.environ.get("SUPABASE_SECRET_KEY")
+)
 
 app = Flask(__name__)
 
@@ -34,12 +38,14 @@ def init_db():
 def home():
     return render_template("login.html")
 
+
 @app.route("/dashboard")
 def dashboard():
-    students = supabase.table("students").select("class_name, percentage").execute().data
+    students = supabase.table("students").select(
+        "class_name, percentage"
+    ).execute().data
 
     total_students = len(students)
-
     classes = set()
     valid_percentages = []
 
@@ -71,6 +77,7 @@ def dashboard():
         average_percentage=average_percentage
     )
 
+
 @app.route("/logout")
 def logout():
     return render_template("login.html")
@@ -87,6 +94,7 @@ def login():
         return dashboard()
 
     return "Invalid username or password!"
+
 
 @app.route("/search-student", methods=["GET", "POST"])
 def search_student():
@@ -140,6 +148,8 @@ def search_student():
         )
 
     return render_template("search_student.html")
+
+
 @app.route("/edit-student/<int:student_id>")
 def edit_student(student_id):
     result = supabase.table("students").select("*").eq(
@@ -165,6 +175,7 @@ def edit_student(student_id):
         "edit_student.html",
         student=student
     )
+
 
 @app.route("/update-student/<int:student_id>", methods=["POST"])
 def update_student(student_id):
@@ -206,6 +217,8 @@ def update_student(student_id):
         ),
         message="Student updated successfully!"
     )
+
+
 @app.route("/delete-student/<int:student_id>")
 def delete_student(student_id):
     supabase.table("students").delete().eq(
@@ -213,6 +226,7 @@ def delete_student(student_id):
     ).execute()
 
     return "Student deleted successfully!"
+
 
 @app.route("/view-students")
 def view_students():
@@ -254,33 +268,93 @@ def class_wise():
         classes=classes
     )
 
+
+# CLASS-WISE STUDENT PERFORMANCE ROUTE
 @app.route("/class-wise/<class_name>")
 def class_wise_students(class_name):
+
     data = supabase.table("students").select("*").eq(
         "class_name", class_name
     ).execute().data
 
     students = []
+    students_with_marks = []
 
-    for student in data:
-        students.append((
-            student.get("id"),
-            student.get("roll_number"),
-            student.get("name"),
-            student.get("class_name"),
-            student.get("father_name"),
-            student.get("mother_name"),
-            student.get("parent_contact"),
-            student.get("percentage"),
-            student.get("date_of_birth"),
-            student.get("address")
-        ))
+    for student_data in data:
+
+        student = (
+            student_data.get("id"),
+            student_data.get("roll_number"),
+            student_data.get("name"),
+            student_data.get("class_name"),
+            student_data.get("father_name"),
+            student_data.get("mother_name"),
+            student_data.get("parent_contact"),
+            student_data.get("percentage"),
+            student_data.get("date_of_birth"),
+            student_data.get("address")
+        )
+
+        students.append(student)
+
+        try:
+            percentage_value = float(student_data.get("percentage"))
+
+            if 0 <= percentage_value <= 100:
+                students_with_marks.append(
+                    (student, percentage_value)
+                )
+
+        except (ValueError, TypeError):
+            pass
+
+    # Passing percentage is 35%
+    passing_percentage = 35
+
+    passed_students = sum(
+        1 for student, percentage in students_with_marks
+        if percentage >= passing_percentage
+    )
+
+    failed_students = sum(
+        1 for student, percentage in students_with_marks
+        if percentage < passing_percentage
+    )
+
+    if students_with_marks:
+        average_percentage = round(
+            sum(
+                percentage
+                for student, percentage in students_with_marks
+            ) / len(students_with_marks),
+            2
+        )
+    else:
+        average_percentage = 0
+
+    # Find top 3 students of selected class
+    sorted_students = sorted(
+        students_with_marks,
+        key=lambda item: item[1],
+        reverse=True
+    )
+
+    top_students = [
+        student for student, percentage in sorted_students[:3]
+    ]
 
     return render_template(
         "class_students.html",
         students=students,
-        class_name=class_name
+        class_name=class_name,
+        total_students=len(students),
+        passed_students=passed_students,
+        failed_students=failed_students,
+        average_percentage=average_percentage,
+        top_students=top_students
     )
+
+
 @app.route("/top-students")
 def top_students():
     data = supabase.table("students").select("*").execute().data
@@ -292,8 +366,8 @@ def top_students():
 
         if percentage is not None and str(percentage).strip() != "":
             try:
-                percentage_value = float(percentage)
-            except ValueError:
+                float(percentage)
+            except (ValueError, TypeError):
                 continue
 
             students.append((
@@ -331,6 +405,7 @@ def top_students():
         "top_students.html",
         top_students_by_class=top_students_by_class
     )
+
 
 @app.route("/save-student", methods=["POST"])
 def save_student():
@@ -387,7 +462,9 @@ def save_student():
         message="Student added successfully!"
     )
 
+
 init_db()
+
 
 if __name__ == "__main__":
     app.run()
