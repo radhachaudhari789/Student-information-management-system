@@ -11,6 +11,7 @@ supabase: Client = create_client(
 app = Flask(__name__)
 
 
+# DATABASE INITIALIZATION
 def init_db():
     conn = sqlite3.connect("students.db")
     cursor = conn.cursor()
@@ -34,11 +35,13 @@ def init_db():
     conn.close()
 
 
+# HOME PAGE
 @app.route("/")
 def home():
     return render_template("login.html")
 
 
+# DASHBOARD
 @app.route("/dashboard")
 def dashboard():
     students = supabase.table("students").select(
@@ -78,11 +81,13 @@ def dashboard():
     )
 
 
+# LOGOUT
 @app.route("/logout")
 def logout():
     return render_template("login.html")
 
 
+# LOGIN
 @app.route("/login", methods=["POST"])
 def login():
     username = request.form["username"]
@@ -96,6 +101,7 @@ def login():
     return "Invalid username or password!"
 
 
+# SEARCH STUDENT
 @app.route("/search-student", methods=["GET", "POST"])
 def search_student():
     if request.method == "POST":
@@ -150,6 +156,7 @@ def search_student():
     return render_template("search_student.html")
 
 
+# EDIT STUDENT
 @app.route("/edit-student/<int:student_id>")
 def edit_student(student_id):
     result = supabase.table("students").select("*").eq(
@@ -177,6 +184,7 @@ def edit_student(student_id):
     )
 
 
+# UPDATE STUDENT
 @app.route("/update-student/<int:student_id>", methods=["POST"])
 def update_student(student_id):
     roll_number = request.form["roll_number"]
@@ -219,6 +227,7 @@ def update_student(student_id):
     )
 
 
+# DELETE STUDENT
 @app.route("/delete-student/<int:student_id>")
 def delete_student(student_id):
     supabase.table("students").delete().eq(
@@ -228,6 +237,7 @@ def delete_student(student_id):
     return "Student deleted successfully!"
 
 
+# VIEW ALL STUDENTS
 @app.route("/view-students")
 def view_students():
     data = supabase.table("students").select("*").execute().data
@@ -254,11 +264,13 @@ def view_students():
     )
 
 
+# ADD STUDENT PAGE
 @app.route("/add-student")
 def add_student():
     return render_template("add_student.html")
 
 
+# CLASS SELECTION PAGE
 @app.route("/class-wise")
 def class_wise():
     classes = list(range(1, 11))
@@ -269,7 +281,7 @@ def class_wise():
     )
 
 
-# CLASS-WISE STUDENT PERFORMANCE ROUTE
+# CLASS-WISE STUDENTS AND PERFORMANCE
 @app.route("/class-wise/<class_name>")
 def class_wise_students(class_name):
 
@@ -298,7 +310,9 @@ def class_wise_students(class_name):
         students.append(student)
 
         try:
-            percentage_value = float(student_data.get("percentage"))
+            percentage_value = float(
+                student_data.get("percentage")
+            )
 
             if 0 <= percentage_value <= 100:
                 students_with_marks.append(
@@ -308,7 +322,7 @@ def class_wise_students(class_name):
         except (ValueError, TypeError):
             pass
 
-    # Passing percentage is 35%
+    # PASSING MARKS: 35%
     passing_percentage = 35
 
     passed_students = sum(
@@ -321,6 +335,7 @@ def class_wise_students(class_name):
         if percentage < passing_percentage
     )
 
+    # CLASS AVERAGE
     if students_with_marks:
         average_percentage = round(
             sum(
@@ -332,7 +347,7 @@ def class_wise_students(class_name):
     else:
         average_percentage = 0
 
-    # Find top 3 students of selected class
+    # TOP 3 STUDENTS OF SELECTED CLASS
     sorted_students = sorted(
         students_with_marks,
         key=lambda item: item[1],
@@ -340,7 +355,8 @@ def class_wise_students(class_name):
     )
 
     top_students = [
-        student for student, percentage in sorted_students[:3]
+        student
+        for student, percentage in sorted_students[:3]
     ]
 
     return render_template(
@@ -355,6 +371,7 @@ def class_wise_students(class_name):
     )
 
 
+# TOP STUDENTS OF ALL CLASSES
 @app.route("/top-students")
 def top_students():
     data = supabase.table("students").select("*").execute().data
@@ -407,6 +424,7 @@ def top_students():
     )
 
 
+# SAVE NEW STUDENT
 @app.route("/save-student", methods=["POST"])
 def save_student():
     roll_number = request.form["roll_number"]
@@ -419,7 +437,7 @@ def save_student():
     date_of_birth = request.form["date_of_birth"]
     address = request.form.get("address", "")
 
-    # Validate parent contact
+    # VALIDATE PARENT CONTACT
     if parent_contact and (
         not parent_contact.isdigit() or len(parent_contact) != 10
     ):
@@ -428,7 +446,7 @@ def save_student():
             error="Parent contact must be exactly 10 digits."
         )
 
-    # Validate percentage
+    # VALIDATE PERCENTAGE
     if percentage:
         try:
             percentage_value = float(percentage)
@@ -463,8 +481,10 @@ def save_student():
     )
 
 
+# INITIALIZE DATABASE
 init_db()
 
 
 if __name__ == "__main__":
     app.run()
+    
