@@ -3,6 +3,77 @@
 <head>
     <title>Class Students - Student Information Management System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .class-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+            margin: 22px 0;
+        }
+
+        .class-summary-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .class-summary-card p {
+            margin: 0 0 8px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .class-summary-card h2 {
+            margin: 0;
+            color: #172554;
+            font-size: 27px;
+        }
+
+        .class-top-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .class-top-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        .class-top-card th,
+        .class-top-card td {
+            padding: 11px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        .class-top-card th {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .class-summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 9px;
+            }
+
+            .class-summary-card {
+                padding: 12px;
+            }
+
+            .class-summary-card h2 {
+                font-size: 22px;
+            }
+        }
+    </style>
 </head>
 
 <body class="dashboard-page">
@@ -58,6 +129,80 @@
 
         </header>
 
+
+        <!-- CLASS PERFORMANCE SUMMARY -->
+
+        <section class="class-summary-grid">
+
+            <div class="class-summary-card">
+                <p>Total Students</p>
+                <h2>{{ total_students }}</h2>
+            </div>
+
+            <div class="class-summary-card">
+                <p>Passed Students (35% and above)</p>
+                <h2>{{ passed_students }}</h2>
+            </div>
+
+            <div class="class-summary-card">
+                <p>Failed Students (below 35%)</p>
+                <h2>{{ failed_students }}</h2>
+            </div>
+
+            <div class="class-summary-card">
+                <p>Average Percentage</p>
+                <h2>{{ average_percentage }}%</h2>
+            </div>
+
+        </section>
+
+
+        <!-- TOP 3 STUDENTS -->
+
+        <section class="class-top-card">
+
+            <h2>Top 3 Students of Class {{ class_name }}</h2>
+
+            {% if top_students %}
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Roll Number</th>
+                        <th>Student Name</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for student in top_students %}
+
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ student[1] }}</td>
+                        <td>{{ student[2] }}</td>
+                        <td>{{ student[7] }}%</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <p>No valid percentage records are available for ranking.</p>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- EXISTING STUDENT LIST -->
 
         <section class="students-table-card">
 
@@ -126,7 +271,7 @@
                         {% else %}
 
                         <tr>
-                            <td colspan="8" class="no-students">
+                            <td colspan="10" class="no-students">
                                 No students found in this class.
                             </td>
                         </tr>
